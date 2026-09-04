@@ -1,0 +1,140 @@
+// Definição dos pinos de controle de direção (Ponte H L298N)
+const int IN1 = 7;
+const int IN2 = 8;
+const int IN3 = 10;
+const int IN4 = 9;
+
+// Definição dos pinos de velocidade (PWM)
+const int ENA = 6;
+const int ENB = 11;
+
+// Definição dos pinos do Sensor HC-SR04
+const int pinEcho = 2;
+const int pinTrig = 3;
+
+// Valores calibrados para trajetória retilínea
+const int velocidadeA = 210;
+const int velocidadeB = 195;
+
+// Parâmetros de temporização das manobras (em milissegundos)
+const int tempoGiroDesvio = 700; // Gira ~60 graus para sair da frente da caixa
+const int tempoPassarCaixa =1000; // Tempo andando para contornar a lateral do objeto
+const int tempoGiroRealinhamento = 700; // Aumentado para 950ms para girar um pouco mais de graus
+
+void setup() {
+pinMode(IN1, OUTPUT);
+pinMode(IN2, OUTPUT);
+pinMode(IN3, OUTPUT);
+pinMode(IN4, OUTPUT);
+pinMode(ENA, OUTPUT);
+pinMode(ENB, OUTPUT);
+
+pinMode(pinTrig, OUTPUT);
+pinMode(pinEcho, INPUT);
+digitalWrite(pinTrig, LOW);
+}
+
+void loop() {
+if (detectouObjeto()) {
+// 1. Para diante da caixa
+parar();
+delay(200);
+
+// 2. Gira para a direita (desvio inicial)
+girarDireitaForte();
+delay(tempoGiroDesvio);
+parar();
+delay(200);
+
+// 3. Anda para frente para ultrapassar a lateral da caixa
+andarFrente();
+delay(tempoPassarCaixa);
+
+// 4. Para completamente após passar a lateral
+parar();
+delay(300);
+
+// 5. Gira mais graus para a esquerda para realinhar a frente
+girarEsquerdaForte();
+delay(tempoGiroRealinhamento);
+
+// 6. Para e demora mais tempo parado antes de seguir em frente
+parar();
+delay(850); // Pausa estendida para assentar o chassi antes de avançar
+
+// 7. Segue em frente sem ler o sensor por 1500 para se afastar da caixa
+andarFrente();
+delay(1500);
+} else {
+// Segue em linha reta
+andarFrente();
+}
+
+delay(30);
+}
+
+// Filtro antirruído com leitura dupla
+bool detectouObjeto() {
+long d1 = lerDistancia();
+if (d1 >= 4 && d1 <= 22) {
+delay(25);
+long d2 = lerDistancia();
+if (d2 >= 4 && d2 <= 22) {
+return true;
+}
+}
+return false;
+}
+
+// Leitura ultrassônica com tratamento de timeout
+long lerDistancia() {
+digitalWrite(pinTrig, HIGH);
+delayMicroseconds(10);
+digitalWrite(pinTrig, LOW);
+
+long duracao = pulseIn(pinEcho, HIGH, 25000);
+if (duracao == 0) {
+return 999;
+}
+
+long cm = duracao / 58;
+return cm;
+}
+
+// Funções de acionamento
+void andarFrente() {
+analogWrite(ENA, velocidadeA);
+analogWrite(ENB, velocidadeB);
+
+digitalWrite(IN1, LOW);
+digitalWrite(IN2, HIGH);
+digitalWrite(IN3, LOW);
+digitalWrite(IN4, HIGH);
+}
+
+void girarDireitaForte() {
+analogWrite(ENA, 180);
+analogWrite(ENB, 200);
+
+digitalWrite(IN1, HIGH);
+digitalWrite(IN2, LOW);
+digitalWrite(IN3, LOW);
+digitalWrite(IN4, HIGH);
+}
+
+void girarEsquerdaForte() {
+analogWrite(ENA,200);
+analogWrite(ENB, 180);
+
+digitalWrite(IN1, LOW);
+digitalWrite(IN2, HIGH);
+digitalWrite(IN3, HIGH);
+digitalWrite(IN4, LOW);
+}
+
+void parar() {
+digitalWrite(IN1, LOW);
+digitalWrite(IN2, LOW);
+digitalWrite(IN3, LOW);
+digitalWrite(IN4, LOW);
+}
