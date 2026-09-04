@@ -25,10 +25,6 @@ O Arduino Uno é responsável pelo controle do carrinho, enviando sinais para a 
 
 O sensor ultrassônico HC-SR04 é utilizado para identificar obstáculos à frente do carrinho. A partir da distância medida pelo sensor, o Arduino executa a lógica programada para realizar o desvio.
 
-## Código
-
-O arquivo `carrinho_arduino.ino` contém o código utilizado na programação do Arduino Uno.
-
 ## Limitações
 
 Durante os testes, o carrinho conseguiu realizar o movimento de desvio diante de obstáculos, porém apresentou dificuldades para retornar de forma precisa à trajetória e à direção anteriores. Foram necessários testes e ajustes na programação para tentar melhorar esse comportamento.
