@@ -4,7 +4,7 @@ Projeto de um carrinho robótico desenvolvido na disciplina de Eletrônica Aplic
 
 ## Componentes utilizados
 
- - 1 Arduino Uno;
+ - 01 Arduino Uno;
  - 01 Ponte H L298N;
  - 02 Motores DC com caixa de redução;
  - 02 Rodas para motores DC;
